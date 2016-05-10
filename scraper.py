@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # FIXME: move this file outside scrapy project?
-from page_watcher import read_yaml, commit, create_policy_file_path, \
-    CONFIG_PATH, RULES_PATH, DATA_REPO_PATH
+import sys
+from page_watcher import commit_push, create_data_file_path, obtain_yaml
+from config import CONFIG_PATH, RULES_PATH, DATA_REPO_PATH, CONFIG_REPO_PATH, \
+    CONFIG_REPO_URL, CONFIG_REPO_BRANCH, RULES_REPO_PATH, RULES_REPO_URL, \
+    RULES_REPO_BRANCH, DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL
 
 import logging
 
@@ -13,11 +16,11 @@ logger.setLevel(logging.DEBUG)
 
 def main():
 
-    repos = read_yaml(CONFIG_PATH)
-    # FIXME: obtain last commit?
+    repos = obtain_yaml(CONFIG_REPO_PATH,
+                        CONFIG_PATH, CONFIG_REPO_URL, CONFIG_REPO_BRANCH)
 
-    rules = read_yaml(RULES_PATH)
-    # FIXME: obtain last commit?
+    rules = obtain_yaml(RULES_REPO_PATH,
+                        RULES_PATH, RULES_REPO_URL, RULES_REPO_BRANCH)
 
     from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
@@ -25,7 +28,7 @@ def main():
     process = CrawlerProcess(get_project_settings())
 
     for rule in rules:
-        policies_path = create_policy_file_path(rule)
+        policies_path = create_data_file_path(rule, DATA_REPO_PATH)
         process.crawl(
             'policies', policies_path=policies_path, url=rule['url'],
             xpath=rule['xpath'])
@@ -35,7 +38,9 @@ def main():
     process.stop()
 
     for repo in repos:
-        commit(DATA_REPO_PATH, repo['url'], repo['name'])
+        commit_push(DATA_REPO_PATH, repo.get('url'), repo.get('name'),
+                    DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL)
+    sys.exit()
 
 if __name__ == "__main__":
     main()
