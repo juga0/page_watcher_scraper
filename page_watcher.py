@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # FIXME: move this file outside scrapy project?
-from git import Repo, InvalidGitRepositoryError, GitCmdObjectDB
+from git import Repo, InvalidGitRepositoryError, GitCmdObjectDB, \
+    GitCommandError
 from os import environ, makedirs
 from os.path import join, isdir, isfile
 import sys
