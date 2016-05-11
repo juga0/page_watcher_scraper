@@ -7,7 +7,10 @@ GIT_AUTHOR_NAME = "OII Policies Agent"
 GIT_AUTHOR_EMAIL = "oii-agents@iilab.org"
 
 # BASE_PATH = dirname(dirname(abspath(__file__)))
-BASE_PATH = dirname(abspath(__file__))
+# BASE_PATH = dirname(abspath(__file__))
+# to be able to run it in morph.io, directories can only be created inside the
+# code dir
+BASE_PATH = abspath(__file__)
 ROOT_PATH = dirname(BASE_PATH)
 CONFIG_REPO = 'page-watcher-config'
 RULES_REPO = 'page-watcher-rules'

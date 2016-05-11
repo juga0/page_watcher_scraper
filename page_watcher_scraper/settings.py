@@ -90,8 +90,7 @@ from os.path import dirname, join, abspath
 from datetime import datetime
 
 
-# BASE_PATH = dirname(dirname(abspath(__file__)))
-BASE_PATH = dirname(abspath(__file__))
+BASE_PATH = dirname(dirname(abspath(__file__)))
 DATA_DIR = 'data'
 DATA_PATH = join(BASE_PATH,  DATA_DIR)
 LOG_DIR = 'log'
