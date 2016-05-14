@@ -28,6 +28,8 @@ CONFIG_REPO_URL = \
 RULES_REPO_URL = \
     'https://code.iilab.org/openintegrity-agents/page-watcher-rules.git'
 
+METADATA_PATH = join(DATA_REPO_PATH, 'metadata.yml')
+
 
 MORPH_SSH_PRIV_KEY_ENV = 'MORPH_SSH_PRIV_KEY'
 MORPH_SSH_PUB_KEY_ENV = 'MORPH_SSH_PUB_KEY'

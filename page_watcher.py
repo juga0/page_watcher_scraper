@@ -150,10 +150,6 @@ def create_repo(repo_path, repo_name, repo_url):
 
 def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
                 repo_branch):
-    # FIXME: handle changes to be commited
-    # if repo.index.diff(repo.head.commit):
-    #     logger.debug('there are unpushed changes')
-    if repo.index.diff(None) or repo.untracked_files:
         logger.debug("COMMITING")
         repo.index.add('*')
         logger.debug('added files to repo')
@@ -176,6 +172,17 @@ def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
             except GitCommandError, e:
                 # FIXME: handle better exception
                 logger.exception(e)
+
+
+def commit_push_if_changes(repo, repo_author, repo_email, git_ssh_command_path,
+                           repo_branch, metadata_path):
+    # FIXME: handle changes to be commited
+    # if repo.index.diff(repo.head.commit):
+    #     logger.debug('there are unpushed changes')
+    if repo.index.diff(None) or repo.untracked_files:
+        write_metadata_file(metadata_path, repo.working_dir)
+        commit_push(repo, repo_author, repo_email, git_ssh_command_path,
+                    repo_branch)
     else:
         logger.debug('nothing changed, not committing/pushing')
 
@@ -224,3 +231,103 @@ def write_ssh_key_server(ssh_pub_key, ssh_pub_key_path):
             f.write(ssh_pub_key)
         logger.debug('wroten %s' % ssh_pub_key_path)
         logger.debug('with content %s' % ssh_pub_key)
+
+
+def generate_hash(text):
+    import hashlib
+    sha = hashlib.sha256(text).hexdigest()
+    logger.debug(sha)
+    return sha
+
+
+def obtain_script_version():
+    from pkg_resources import get_distribution, DistributionNotFound
+    try:
+        _dist = get_distribution('page-watcher-scraper')
+    except DistributionNotFound:
+        __version__ = 'Please install this project with setup.py'
+    else:
+        __version__ = _dist.version
+    logger.debug(__version__)
+
+
+def obtain_script_commit_hash(script_path):
+    # FIXME: ROOT_PATH
+    script_repo = Repo(script_path, odbt=GitCmdObjectDB)
+    commit_hash = script_repo.head.commit.hexsha
+    logger.debug(commit_hash)
+    return commit_hash
+
+
+# def obtain_python_version():
+#     import sys
+#     python_version = sys.version
+#     logger.debug(python_version)
+
+
+def obtain_uname():
+    from os import uname
+    kernel_version = ' '.join(uname())
+    logger.debug(kernel_version)
+    return kernel_version
+
+
+# def obtain_system_hostname():
+#     import socket
+#     s = socket.socket()
+#     host = socket.gethostname()
+#     logger.debug(host)
+
+
+# def obtain_user():
+#     import getpass
+#     getpass.getuser()
+
+
+def generate_host_identifier():
+    hostid = generate_hash(obtain_uname())
+    logger.debug(hostid)
+    return hostid
+
+
+def now():
+    from datetime import datetime
+    now = datetime.now()
+    logger.debug(now)
+    return now
+
+
+def generate_metadata(repo_path):
+    metadata = {
+        'timestamp': str(now()),
+        'commit_revision': obtain_script_commit_hash(repo_path),
+        'host_id': generate_host_identifier(),
+    }
+    logger.debug(metadata)
+    return metadata
+
+
+def generate_yaml(dict_data):
+    data_yaml = yaml.safe_dump(dict_data)
+    logger.debug(data_yaml)
+    return data_yaml
+
+
+# def create_metadata_data_file_path(rule, data_path):
+#     data_dir_path = join(data_path,
+#                          rule.get('organization'),
+#                          rule.get('tool'))
+#     if not isdir(data_dir_path):
+#         makedirs(data_dir_path)
+#     metadata_file_path = join(data_dir_path, rule.get('policy')
+#                               + '_metadata.txt')
+#     logger.debug('metadata file path %s' % metadata_file_path)
+#     return metadata_file_path
+
+
+def write_metadata_file(metadata_path, repo_path):
+    metadata = generate_metadata(repo_path)
+    metadata_yaml = generate_yaml(metadata)
+    with open(metadata_path, 'w') as f:
+        f.write(metadata_yaml)
+    logger.debug('wroten %s with %s' % (metadata_path, metadata_yaml))

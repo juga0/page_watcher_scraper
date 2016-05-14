@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from page_watcher import commit_push, create_data_file_path, obtain_yaml, \
-    obtain_repo, write_ssh_keys, write_ssh_command, write_ssh_key_server
+from page_watcher import commit_push_if_changes, create_data_file_path, \
+    obtain_yaml, obtain_repo, write_ssh_keys, write_ssh_command, \
+    write_ssh_key_server
 from config import CONFIG_PATH, RULES_PATH, DATA_REPO_PATH, CONFIG_REPO_PATH, \
     CONFIG_REPO_URL, CONFIG_REPO_BRANCH, RULES_REPO_PATH, RULES_REPO_URL, \
-    RULES_REPO_BRANCH, DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL
+    RULES_REPO_BRANCH, DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL, \
+    METADATA_PATH
 from config import MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV, \
     SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH, GIT_SSH_COMMAND, SSH_DIR, \
     GIT_SSH_COMMAND_PATH, SSH_PUB_KEY_SERVER_PATH, GITHUB_SSH_PUB_KEY
@@ -23,6 +25,7 @@ logger.setLevel(logging.DEBUG)
 
 
 def main():
+
     repos = []
     repos_conf = obtain_yaml(CONFIG_REPO_PATH,
                              CONFIG_PATH, CONFIG_REPO_URL, CONFIG_REPO_BRANCH)
@@ -57,8 +60,9 @@ def main():
     process.stop()
 
     for repo in repos:
-        commit_push(repo, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
-                    GIT_SSH_COMMAND_PATH, DATA_REPO_BRANCH)
+        commit_push_if_changes(repo, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
+                               GIT_SSH_COMMAND_PATH, DATA_REPO_BRANCH,
+                               METADATA_PATH)
 
     sys.exit()
 
