@@ -31,6 +31,9 @@ def main():
     rules = obtain_yaml(RULES_REPO_PATH,
                         RULES_PATH, RULES_REPO_URL, RULES_REPO_BRANCH)
 
+    write_ssh_keys(SSH_DIR, MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV,
+                   SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH)
+
     write_ssh_command(GIT_SSH_COMMAND_PATH, GIT_SSH_COMMAND)
 
     for repo_conf in repos_conf:
@@ -51,9 +54,6 @@ def main():
     # the script will block here until the crawling is finished
     process.start()
     process.stop()
-
-    write_ssh_keys(SSH_DIR, MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV,
-                   SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH)
 
     for repo in repos:
         commit_push(repo, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
