@@ -203,3 +203,11 @@ def write_ssh_command(git_ssh_command_path, git_ssh_command):
         chmod(git_ssh_command_path, 0766)
         logger.debug('wroten %s' % git_ssh_command_path)
         logger.debug('with content %s' % git_ssh_command)
+
+
+def write_ssh_key_server(ssh_pub_key, ssh_pub_key_path):
+    if not isfile(ssh_pub_key_path):
+        with open(ssh_pub_key_path,'w') as f:
+            f.write(ssh_pub_key)
+        logger.debug('wroten %s' % ssh_pub_key_path)
+        logger.debug('with content %s' % ssh_pub_key)
