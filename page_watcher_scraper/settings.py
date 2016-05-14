@@ -147,24 +147,9 @@ POLICY_TYPES = {
     'privacy policy': 'privacy_policy'
 }
 
-# FIXME: move out of settings?
-# CONFIG_REPO_BRANCH = 'master'
-# RULES_REPO_BRANCH = 'master'
-# GIT_AUTHOR_NAME = "OII Policies Robot"
-# GIT_AUTHOR_EMAIL = "robots@oii.org"
-# # BASE_PATH = dirname(dirname(abspath(__file__)))
 ROOT_PATH = dirname(BASE_PATH)
-# CONFIG_REPO = 'page-watcher-config'
-# RULES_REPO = 'page-watcher-rules'
 DATA_REPO = 'page-watcher-data'
-# CONFIG_REPO_PATH = join(ROOT_PATH, 'policies_config')
-# RULES_REPO_PATH = join(ROOT_PATH, 'policies_rules')
 DATA_REPO_PATH = join(ROOT_PATH, DATA_REPO)
-# CONFIG_FILENAME = 'config.yml'
-# DATA_FILENAME = 'data.yml'
-# RULES_FILENAME = 'rules.yml'
-# CONFIG_PATH = join(ROOT_PATH, CONFIG_REPO, CONFIG_FILENAME)
-# RULES_PATH = join(ROOT_PATH, RULES_REPO, RULES_FILENAME)
 
 try:
     from settings_local import *

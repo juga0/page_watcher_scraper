@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# FIXME: move this file outside scrapy project?
 import sys
 from page_watcher import commit_push, create_data_file_path, obtain_yaml, \
     obtain_repo, write_ssh_keys, write_ssh_command, write_ssh_key_server
@@ -26,7 +25,7 @@ logger.setLevel(logging.DEBUG)
 def main():
     repos = []
     repos_conf = obtain_yaml(CONFIG_REPO_PATH,
-                        CONFIG_PATH, CONFIG_REPO_URL, CONFIG_REPO_BRANCH)
+                             CONFIG_PATH, CONFIG_REPO_URL, CONFIG_REPO_BRANCH)
 
     rules = obtain_yaml(RULES_REPO_PATH,
                         RULES_PATH, RULES_REPO_URL, RULES_REPO_BRANCH)

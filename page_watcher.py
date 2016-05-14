@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# FIXME: move this file outside scrapy project?
 from git import Repo, InvalidGitRepositoryError, GitCmdObjectDB, \
     GitCommandError, Git
 from os import environ, makedirs, chmod
@@ -28,8 +27,8 @@ def read_yaml(file_path):
         raise IOError
 
 
-def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin', git_ssh_command_path=None):
-    # FIXME: pull repo
+def obtain_yaml(repo_path, file_path, repo_url, repo_branch,
+                repo_name='origin', git_ssh_command_path=None):
     yaml_data = None
 
     if isdir(repo_path):
@@ -40,15 +39,13 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin',
             origin = repo.remotes[repo_name]
         # dir exist but is not a repo
         except InvalidGitRepositoryError, e:
-            # FIXME: rm the dir and clone the repo
             logger.exception(e)
-            # rmdir and clone repo
             rmtree(repo_path)
             try:
                 repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                    repo_name, git_ssh_command_path)
+                                          repo_name, git_ssh_command_path)
             except GitCommandError, e:
-                # FIXME
+                # FIXME: handle in a better way exception
                 logger.exception(e)
                 logger.debug('cant obtain yaml')
                 sys.exit()
@@ -57,7 +54,7 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin',
     else:
         try:
             repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                repo_name, git_ssh_command_path)
+                                      repo_name, git_ssh_command_path)
         except GitCommandError, e:
             # FIXME
             logger.exception(e)
@@ -72,7 +69,8 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin',
     return yaml_data
 
 
-def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command_path=None):
+def obtain_repo(repo_path, repo_url, repo_name, repo_branch,
+                git_ssh_command_path=None):
     repo = None
     logger.debug("OBTAINING REPO")
     if isdir(repo_path):
@@ -83,15 +81,13 @@ def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command_pat
             origin = repo.remotes[repo_name]
         # dir exist but is not a repo
         except InvalidGitRepositoryError, e:
-            # FIXME: rm the dir and clone the repo
             logger.exception(e)
-            # rmdir and clone repo
             rmtree(repo_path)
             try:
                 repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                    repo_name, git_ssh_command_path)
+                                          repo_name, git_ssh_command_path)
             except GitCommandError, e:
-                # FIXME
+                # FIXME: handle better exception
                 repo, origin = create_repo(repo_path, repo_name, repo_url)
         pull_repo(origin, repo_branch, git_ssh_command_path)
         # FIXME: pull fail?
@@ -99,9 +95,9 @@ def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command_pat
     else:
         try:
             repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                repo_name, git_ssh_command_path)
+                                      repo_name, git_ssh_command_path)
         except GitCommandError, e:
-            # FIXME
+            # FIXME: handle better exception
             repo, origin = create_repo(repo_path, repo_name, repo_url)
         return repo
 
@@ -110,24 +106,29 @@ def pull_repo(origin_repo, repo_branch, git_ssh_command_path=None):
     logger.debug("PULLING")
     try:
         if git_ssh_command_path:
-            logger.debug('pulling with git_ssh_command_path %s' % git_ssh_command_path)
-            with origin_repo.repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
+            logger.debug('pulling with git_ssh_command_path %s' %
+                         git_ssh_command_path)
+            with origin_repo.repo.git.custom_environment(
+                    GIT_SSH=git_ssh_command_path):
                 origin_repo.pull(repo_branch)
         else:
             logger.debug('pulling without git_ssh_command_path')
             origin_repo.pull(repo_branch)
     except GitCommandError, e:
-        # FIXME
+        # FIXME: handle better exception
         logger.exception(e)
         raise e
 
 
-def clone_repo(repo_url, repo_path, repo_branch, repo_name, git_ssh_command_path=None):
+def clone_repo(repo_url, repo_path, repo_branch, repo_name,
+               git_ssh_command_path=None):
     logger.debug("CLONING")
     try:
         if git_ssh_command_path:
-            logger.debug('pulling with git_ssh_command_path %s' % git_ssh_command_path)
-            repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch, env={'GIT_SSH':git_ssh_command_path})
+            logger.debug('pulling with git_ssh_command_path %s' %
+                         git_ssh_command_path)
+            repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch,
+                                   env={'GIT_SSH': git_ssh_command_path})
         else:
             logger.debug('pulling without git_ssh_command_path')
             repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch)
@@ -135,13 +136,12 @@ def clone_repo(repo_url, repo_path, repo_branch, repo_name, git_ssh_command_path
         origin.rename(repo_name)
         return repo, origin
     except GitCommandError, e:
-        # FIXME
+        # FIXME: handle better exception
         logger.exception(e)
         raise e
 
 
 def create_repo(repo_path, repo_name, repo_url):
-    # create dir
     logger.debug("CREATING REPO")
     repo = Repo.init(repo_path)
     origin = repo.create_remote(repo_name, repo_url)
@@ -156,6 +156,7 @@ def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
     commit_msg = "Crawl completed at " + time.strftime("%Y-%m-%d-%H-%M-%S")
     environ["GIT_AUTHOR_NAME"] = repo_author
     environ["GIT_AUTHOR_EMAIL"] = repo_email
+    # TODO: commit only if diff
     committed = repo.index.commit(commit_msg)
     logger.debug('commited policy data')
     logger.debug(committed)
@@ -164,7 +165,11 @@ def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
     # origin = repo.remotes[repo_name]
     logger.debug('pushing with git_ssh_command_path %s' % git_ssh_command_path)
     with repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
-        origin.push(repo_branch)
+        try:
+            origin.push(repo_branch)
+        except GitCommandError, e:
+            # FIXME: handle better exception
+            logger.exception(e)
 
 
 def create_data_file_path(rule, data_path):
@@ -177,8 +182,8 @@ def create_data_file_path(rule, data_path):
     return data_file_path
 
 
-def write_ssh_keys(ssh_dir, ssh_priv_key_env, ssh_pub_key_env, ssh_priv_key_path,
-                   ssh_pub_key_path):
+def write_ssh_keys(ssh_dir, ssh_priv_key_env, ssh_pub_key_env,
+                   ssh_priv_key_path, ssh_pub_key_path):
     ssh_pub_key = environ[ssh_pub_key_env]
     ssh_priv_key = environ[ssh_priv_key_env]
     logger.debug('ssh_dir %s' % ssh_dir)
@@ -198,7 +203,7 @@ def write_ssh_keys(ssh_dir, ssh_priv_key_env, ssh_pub_key_env, ssh_priv_key_path
 
 def write_ssh_command(git_ssh_command_path, git_ssh_command):
     if not isfile(git_ssh_command_path):
-        with open(git_ssh_command_path,'w') as f:
+        with open(git_ssh_command_path, 'w') as f:
             f.write(git_ssh_command)
         chmod(git_ssh_command_path, 0766)
         logger.debug('wroten %s' % git_ssh_command_path)
@@ -207,7 +212,7 @@ def write_ssh_command(git_ssh_command_path, git_ssh_command):
 
 def write_ssh_key_server(ssh_pub_key, ssh_pub_key_path):
     if not isfile(ssh_pub_key_path):
-        with open(ssh_pub_key_path,'w') as f:
+        with open(ssh_pub_key_path, 'w') as f:
             f.write(ssh_pub_key)
         logger.debug('wroten %s' % ssh_pub_key_path)
         logger.debug('with content %s' % ssh_pub_key)
