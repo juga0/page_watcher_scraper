@@ -35,7 +35,7 @@ SSH_DIR = 'ssh'
 SSH_PATH = join(ROOT_PATH, SSH_DIR)
 SSH_PRIV_KEY_PATH = join(SSH_PATH, 'id_rsa')
 SSH_PUB_KEY_PATH = join(SSH_PATH, 'id_rsa.pub')
-GIT_SSH_COMMAND = '#!/bin/sh\nssh -i ' + SSH_PRIV_KEY_PATH
+GIT_SSH_COMMAND = '#!/bin/sh\nssh -i ' + SSH_PRIV_KEY_PATH + ' "$@"\n'
 GIT_SSH_COMMAND_FILE = 'ssh_command.sh'
 GIT_SSH_COMMAND_PATH = join(ROOT_PATH, GIT_SSH_COMMAND_FILE)
 

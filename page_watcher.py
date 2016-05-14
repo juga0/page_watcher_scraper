@@ -126,8 +126,10 @@ def clone_repo(repo_url, repo_path, repo_branch, repo_name, git_ssh_command_path
     logger.debug("CLONING")
     try:
         if git_ssh_command_path:
+            logger.debug('pulling with git_ssh_command_path %s' % git_ssh_command_path)
             repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch, env={'GIT_SSH':git_ssh_command_path})
         else:
+            logger.debug('pulling without git_ssh_command_path')
             repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch)
         origin = repo.remotes['origin']
         origin.rename(repo_name)
@@ -200,3 +202,4 @@ def write_ssh_command(git_ssh_command_path, git_ssh_command):
             f.write(git_ssh_command)
         chmod(git_ssh_command_path, 0766)
         logger.debug('wroten %s' % git_ssh_command_path)
+        logger.debug('with content %s' % git_ssh_command)
