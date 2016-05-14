@@ -150,26 +150,34 @@ def create_repo(repo_path, repo_name, repo_url):
 
 def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
                 repo_branch):
-    logger.debug("COMMITING AND PUSHING")
-    repo.index.add('*')
-    logger.debug('added files to repo')
-    commit_msg = "Crawl completed at " + time.strftime("%Y-%m-%d-%H-%M-%S")
-    environ["GIT_AUTHOR_NAME"] = repo_author
-    environ["GIT_AUTHOR_EMAIL"] = repo_email
-    # TODO: commit only if diff
-    committed = repo.index.commit(commit_msg)
-    logger.debug('commited policy data')
-    logger.debug(committed)
-    # FIXME: there could be more than 1 origin
-    origin = repo.remotes[0]
-    # origin = repo.remotes[repo_name]
-    logger.debug('pushing with git_ssh_command_path %s' % git_ssh_command_path)
-    with repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
-        try:
-            origin.push(repo_branch)
-        except GitCommandError, e:
-            # FIXME: handle better exception
-            logger.exception(e)
+    # FIXME: handle changes to be commited
+    # if repo.index.diff(repo.head.commit):
+    #     logger.debug('there are unpushed changes')
+    if repo.index.diff(None) or repo.untracked_files:
+        logger.debug("COMMITING")
+        repo.index.add('*')
+        logger.debug('added files to repo')
+        commit_msg = "Crawl completed at " + time.strftime("%Y-%m-%d-%H-%M-%S")
+        environ["GIT_AUTHOR_NAME"] = repo_author
+        environ["GIT_AUTHOR_EMAIL"] = repo_email
+        # commit only if something changed
+        committed = repo.index.commit(commit_msg)
+        logger.debug('commited policy data')
+        logger.debug(committed)
+        logger.debug('PUSHING')
+        # FIXME: there could be more than 1 origin
+        origin = repo.remotes[0]
+        # origin = repo.remotes[repo_name]
+        logger.debug('pushing with git_ssh_command_path %s' %
+                     git_ssh_command_path)
+        with repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
+            try:
+                origin.push(repo_branch)
+            except GitCommandError, e:
+                # FIXME: handle better exception
+                logger.exception(e)
+    else:
+        logger.debug('nothing changed, not committing/pushing')
 
 
 def create_data_file_path(rule, data_path):
