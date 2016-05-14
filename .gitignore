@@ -1,0 +1,17 @@
+*~
+*.pyc
+.*swp
+deb_dist
+dist
+build
+data
+html
+log
+page-watcher-data
+page-watcher-config
+page-watcher-rules
+ssh/
+ssh_command.sh
+run_local.sh
+config_local.py
+page_watcher_scraper/settings_local.py
