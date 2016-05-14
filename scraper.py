@@ -13,7 +13,7 @@ from config import MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV, \
 try:
     from config_local import GIT_SSH_COMMAND_LOCAL
 except:
-    GIT_SSH_COMMAND_LOCAL = None
+    GIT_SSH_COMMAND_LOCAL = GIT_SSH_COMMAND
     print 'no local git command'
 
 
@@ -55,7 +55,7 @@ def main():
 
     for repo in repos:
         commit_push(repo, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
-                    GIT_SSH_COMMAND, DATA_REPO_BRANCH)
+                    GIT_SSH_COMMAND_LOCAL, DATA_REPO_BRANCH)
 
     sys.exit()
 
