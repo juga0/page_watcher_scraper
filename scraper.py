@@ -4,16 +4,16 @@
 # FIXME: move this file outside scrapy project?
 import sys
 from page_watcher import commit_push, create_data_file_path, obtain_yaml, \
-    obtain_repo, write_ssh_keys
+    obtain_repo, write_ssh_keys, write_ssh_command
 from config import CONFIG_PATH, RULES_PATH, DATA_REPO_PATH, CONFIG_REPO_PATH, \
     CONFIG_REPO_URL, CONFIG_REPO_BRANCH, RULES_REPO_PATH, RULES_REPO_URL, \
     RULES_REPO_BRANCH, DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL
 from config import MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV, \
-    SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH, GIT_SSH_COMMAND, SSH_DIR
+    SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH, GIT_SSH_COMMAND, SSH_DIR, \
+    GIT_SSH_COMMAND_PATH
 try:
-    from config_local import GIT_SSH_COMMAND_LOCAL
+    from config_local import GIT_SSH_COMMAND
 except:
-    GIT_SSH_COMMAND_LOCAL = GIT_SSH_COMMAND
     print 'no local git command'
 
 
@@ -31,9 +31,11 @@ def main():
     rules = obtain_yaml(RULES_REPO_PATH,
                         RULES_PATH, RULES_REPO_URL, RULES_REPO_BRANCH)
 
+    write_ssh_command(GIT_SSH_COMMAND_PATH, GIT_SSH_COMMAND)
+
     for repo_conf in repos_conf:
         repos.append(obtain_repo(DATA_REPO_PATH, repo_conf.get('url'),
-            repo_conf.get('name'), DATA_REPO_BRANCH, GIT_SSH_COMMAND_LOCAL))
+            repo_conf.get('name'), DATA_REPO_BRANCH, GIT_SSH_COMMAND_PATH))
 
     from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
@@ -55,7 +57,7 @@ def main():
 
     for repo in repos:
         commit_push(repo, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
-                    GIT_SSH_COMMAND_LOCAL, DATA_REPO_BRANCH)
+                    GIT_SSH_COMMAND_PATH, DATA_REPO_BRANCH)
 
     sys.exit()
 

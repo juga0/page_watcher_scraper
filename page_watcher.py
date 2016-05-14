@@ -28,7 +28,7 @@ def read_yaml(file_path):
         raise IOError
 
 
-def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin', git_ssh_command=None):
+def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin', git_ssh_command_path=None):
     # FIXME: pull repo
     yaml_data = None
 
@@ -46,18 +46,18 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin',
             rmtree(repo_path)
             try:
                 repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                    repo_name, git_ssh_command)
+                    repo_name, git_ssh_command_path)
             except GitCommandError, e:
                 # FIXME
                 logger.exception(e)
                 logger.debug('cant obtain yaml')
                 sys.exit()
         else:
-            pull_repo(origin, repo_branch, git_ssh_command)
+            pull_repo(origin, repo_branch, git_ssh_command_path)
     else:
         try:
             repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                repo_name, git_ssh_command)
+                repo_name, git_ssh_command_path)
         except GitCommandError, e:
             # FIXME
             logger.exception(e)
@@ -72,7 +72,7 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch, repo_name='origin',
     return yaml_data
 
 
-def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command=None):
+def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command_path=None):
     repo = None
     logger.debug("OBTAINING REPO")
     if isdir(repo_path):
@@ -89,32 +89,32 @@ def obtain_repo(repo_path, repo_url, repo_name, repo_branch, git_ssh_command=Non
             rmtree(repo_path)
             try:
                 repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                    repo_name, git_ssh_command)
+                    repo_name, git_ssh_command_path)
             except GitCommandError, e:
                 # FIXME
                 repo, origin = create_repo(repo_path, repo_name, repo_url)
-        pull_repo(origin, repo_branch, git_ssh_command)
+        pull_repo(origin, repo_branch, git_ssh_command_path)
         # FIXME: pull fail?
         return repo
     else:
         try:
             repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                repo_name, git_ssh_command)
+                repo_name, git_ssh_command_path)
         except GitCommandError, e:
             # FIXME
             repo, origin = create_repo(repo_path, repo_name, repo_url)
         return repo
 
 
-def pull_repo(origin_repo, repo_branch, git_ssh_command=None):
+def pull_repo(origin_repo, repo_branch, git_ssh_command_path=None):
     logger.debug("PULLING")
     try:
-        if git_ssh_command:
-            logger.debug('pulling with git_ssh_command %s' % git_ssh_command)
-            with origin_repo.repo.git.custom_environment(GIT_SSH=git_ssh_command):
+        if git_ssh_command_path:
+            logger.debug('pulling with git_ssh_command_path %s' % git_ssh_command_path)
+            with origin_repo.repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
                 origin_repo.pull(repo_branch)
         else:
-            logger.debug('pulling without git_ssh_command')
+            logger.debug('pulling without git_ssh_command_path')
             origin_repo.pull(repo_branch)
     except GitCommandError, e:
         # FIXME
@@ -122,11 +122,11 @@ def pull_repo(origin_repo, repo_branch, git_ssh_command=None):
         raise e
 
 
-def clone_repo(repo_url, repo_path, repo_branch, repo_name, git_ssh_command=None):
+def clone_repo(repo_url, repo_path, repo_branch, repo_name, git_ssh_command_path=None):
     logger.debug("CLONING")
     try:
-        if git_ssh_command:
-            repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch, env={'GIT_SSH':git_ssh_command})
+        if git_ssh_command_path:
+            repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch, env={'GIT_SSH':git_ssh_command_path})
         else:
             repo = Repo.clone_from(repo_url, repo_path, branch=repo_branch)
         origin = repo.remotes['origin']
@@ -146,7 +146,7 @@ def create_repo(repo_path, repo_name, repo_url):
     return repo, origin
 
 
-def commit_push(repo, repo_author, repo_email, git_ssh_command,
+def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
                 repo_branch):
     logger.debug("COMMITING AND PUSHING")
     repo.index.add('*')
@@ -160,8 +160,8 @@ def commit_push(repo, repo_author, repo_email, git_ssh_command,
     # FIXME: there could be more than 1 origin
     origin = repo.remotes[0]
     # origin = repo.remotes[repo_name]
-    logger.debug('pushing with git_ssh_command %s' % git_ssh_command)
-    with repo.git.custom_environment(GIT_SSH=git_ssh_command):
+    logger.debug('pushing with git_ssh_command_path %s' % git_ssh_command_path)
+    with repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
         origin.push(repo_branch)
 
 
@@ -192,3 +192,11 @@ def write_ssh_keys(ssh_dir, ssh_priv_key_env, ssh_pub_key_env, ssh_priv_key_path
             f.write(ssh_priv_key)
         logger.debug('wroten %s' % ssh_priv_key_path)
         chmod(ssh_priv_key_path, 0600)
+
+
+def write_ssh_command(git_ssh_command_path, git_ssh_command):
+    if not isfile(git_ssh_command_path):
+        with open(git_ssh_command_path,'w') as f:
+            f.write(git_ssh_command)
+        chmod(git_ssh_command_path, 0766)
+        logger.debug('wroten %s' % git_ssh_command_path)
