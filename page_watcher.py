@@ -15,7 +15,7 @@ logging.basicConfig()
 logger.setLevel(logging.DEBUG)
 
 
-def read_yaml(file_path):
+def read_yaml(file_path, exit_on_error=False):
     try:
         with open(file_path) as f:
             yaml_data = yaml.safe_load(f)
@@ -24,18 +24,21 @@ def read_yaml(file_path):
         return yaml_data
     except IOError, e:
         logger.exception(e)
+        logger.debug('cant obtain yaml file')
+        if exit_on_error:
+            sys.exit()
         raise IOError
 
 
-def obtain_yaml(repo_path, file_path, repo_url, repo_branch,
-                repo_name='origin', git_ssh_command_path=None):
-    yaml_data = None
-
+def pull_or_clone(repo_path, repo_url, repo_branch,
+                  repo_name='origin', git_ssh_command_path=None,
+                  exit_on_error=True):
     if isdir(repo_path):
         logger.debug('found dir %s' % repo_path)
         try:
             repo = Repo(repo_path, odbt=GitCmdObjectDB)
             logger.debug('dir is a repo')
+            logger.debug('repo_name %s' % repo_name)
             origin = repo.remotes[repo_name]
         # dir exist but is not a repo
         except InvalidGitRepositoryError, e:
@@ -47,8 +50,9 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch,
             except GitCommandError, e:
                 # FIXME: handle in a better way exception
                 logger.exception(e)
-                logger.debug('cant obtain yaml')
-                sys.exit()
+                logger.debug('cant obtain repo')
+                if exit_on_error:
+                    sys.exit()
         else:
             pull_repo(origin, repo_branch, git_ssh_command_path)
     else:
@@ -59,18 +63,25 @@ def obtain_yaml(repo_path, file_path, repo_url, repo_branch,
             # FIXME
             logger.exception(e)
             logger.debug('cant obtain repo')
-            sys.exit()
-    try:
-        yaml_data = read_yaml(file_path)
-    except IOError, e:
-        logger.exception(e)
-        logger.debug('cant obtain yaml file')
-        sys.exit()
+            if exit_on_error:
+                sys.exit()
+
+    # repos_conf = obtain_yaml(CONFIG_REPO_PATH, CONFIG_REPO_URL,
+    #                          CONFIG_REPO_BRANCH, CONFIG_PATH)
+
+def obtain_yaml(repo_path, repo_url, repo_branch, file_path,
+                repo_name='origin', git_ssh_command_path=None,
+                exit_on_error=True):
+    logger.debug('repo_name %s' % repo_name)
+    pull_or_clone(repo_path, repo_url, repo_branch,
+                  repo_name, git_ssh_command_path,
+                  exit_on_error)
+    yaml_data = read_yaml(file_path)
     return yaml_data
 
 
 def obtain_repo(repo_path, repo_url, repo_name, repo_branch,
-                git_ssh_command_path=None):
+                git_ssh_command_path=None, exit_on_error=False):
     repo = None
     logger.debug("OBTAINING REPO")
     if isdir(repo_path):

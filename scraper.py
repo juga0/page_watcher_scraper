@@ -27,11 +27,11 @@ logger.setLevel(logging.DEBUG)
 def main():
 
     repos = []
-    repos_conf = obtain_yaml(CONFIG_REPO_PATH,
-                             CONFIG_PATH, CONFIG_REPO_URL, CONFIG_REPO_BRANCH)
+    repos_conf = obtain_yaml(CONFIG_REPO_PATH, CONFIG_REPO_URL,
+                             CONFIG_REPO_BRANCH, CONFIG_PATH)
 
-    rules = obtain_yaml(RULES_REPO_PATH,
-                        RULES_PATH, RULES_REPO_URL, RULES_REPO_BRANCH)
+    rules = obtain_yaml(RULES_REPO_PATH, RULES_REPO_URL,
+                        RULES_REPO_BRANCH, RULES_PATH)
 
     write_ssh_keys(SSH_DIR, MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV,
                    SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH)
@@ -41,8 +41,11 @@ def main():
     write_ssh_key_server(GITHUB_SSH_PUB_KEY, SSH_PUB_KEY_SERVER_PATH)
 
     for repo_conf in repos_conf:
-        repos.append(obtain_repo(DATA_REPO_PATH, repo_conf.get('url'),
-            repo_conf.get('name'), DATA_REPO_BRANCH, GIT_SSH_COMMAND_PATH))
+        logger.debug('repo name %s' % repo_conf.get('name'))
+        repo = obtain_repo(DATA_REPO_PATH, repo_conf.get('url'),
+                           repo_conf.get('name'), DATA_REPO_BRANCH,
+                           GIT_SSH_COMMAND_PATH, False)
+        repos.append(repo)
 
     from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
