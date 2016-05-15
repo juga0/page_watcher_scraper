@@ -3,7 +3,7 @@
 
 import sys
 from page_watcher import commit_push_if_changes, create_data_file_path, \
-    obtain_yaml, obtain_repo, write_ssh_keys, write_ssh_command, \
+    obtain_yaml, pull_or_clone, write_ssh_keys, write_ssh_command, \
     write_ssh_key_server
 from config import CONFIG_PATH, RULES_PATH, DATA_REPO_PATH, CONFIG_REPO_PATH, \
     CONFIG_REPO_URL, CONFIG_REPO_BRANCH, RULES_REPO_PATH, RULES_REPO_URL, \
@@ -42,9 +42,9 @@ def main():
 
     for repo_conf in repos_conf:
         logger.debug('repo name %s' % repo_conf.get('name'))
-        repo = obtain_repo(DATA_REPO_PATH, repo_conf.get('url'),
-                           repo_conf.get('name'), DATA_REPO_BRANCH,
-                           GIT_SSH_COMMAND_PATH, False)
+        repo = pull_or_clone(DATA_REPO_PATH, repo_conf.get('url'),
+                             DATA_REPO_BRANCH, repo_conf.get('name'),
+                             GIT_SSH_COMMAND_PATH, False)
         repos.append(repo)
 
     from scrapy.crawler import CrawlerProcess

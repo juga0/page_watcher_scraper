@@ -33,6 +33,8 @@ def read_yaml(file_path, exit_on_error=False):
 def pull_or_clone(repo_path, repo_url, repo_branch,
                   repo_name='origin', git_ssh_command_path=None,
                   exit_on_error=True):
+    repo = None
+    logger.debug("OBTAINING REPO")
     if isdir(repo_path):
         logger.debug('found dir %s' % repo_path)
         try:
@@ -53,21 +55,25 @@ def pull_or_clone(repo_path, repo_url, repo_branch,
                 logger.debug('cant obtain repo')
                 if exit_on_error:
                     sys.exit()
+                else:
+                    repo, origin = create_repo(repo_path, repo_name, repo_url)
         else:
             pull_repo(origin, repo_branch, git_ssh_command_path)
-    else:
+            # FIXME: pull fail?
+        return repo
         try:
             repo, origin = clone_repo(repo_url, repo_path, repo_branch,
                                       repo_name, git_ssh_command_path)
         except GitCommandError, e:
-            # FIXME
+        # FIXME: handle better exception
             logger.exception(e)
             logger.debug('cant obtain repo')
             if exit_on_error:
                 sys.exit()
+            else:
+                repo, origin = create_repo(repo_path, repo_name, repo_url)
+        return repo
 
-    # repos_conf = obtain_yaml(CONFIG_REPO_PATH, CONFIG_REPO_URL,
-    #                          CONFIG_REPO_BRANCH, CONFIG_PATH)
 
 def obtain_yaml(repo_path, repo_url, repo_branch, file_path,
                 repo_name='origin', git_ssh_command_path=None,
@@ -78,39 +84,6 @@ def obtain_yaml(repo_path, repo_url, repo_branch, file_path,
                   exit_on_error)
     yaml_data = read_yaml(file_path)
     return yaml_data
-
-
-def obtain_repo(repo_path, repo_url, repo_name, repo_branch,
-                git_ssh_command_path=None, exit_on_error=False):
-    repo = None
-    logger.debug("OBTAINING REPO")
-    if isdir(repo_path):
-        logger.debug('found dir %s' % repo_path)
-        try:
-            repo = Repo(repo_path, odbt=GitCmdObjectDB)
-            logger.debug('dir is a repo')
-            origin = repo.remotes[repo_name]
-        # dir exist but is not a repo
-        except InvalidGitRepositoryError, e:
-            logger.exception(e)
-            rmtree(repo_path)
-            try:
-                repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                                          repo_name, git_ssh_command_path)
-            except GitCommandError, e:
-                # FIXME: handle better exception
-                repo, origin = create_repo(repo_path, repo_name, repo_url)
-        pull_repo(origin, repo_branch, git_ssh_command_path)
-        # FIXME: pull fail?
-        return repo
-    else:
-        try:
-            repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                                      repo_name, git_ssh_command_path)
-        except GitCommandError, e:
-            # FIXME: handle better exception
-            repo, origin = create_repo(repo_path, repo_name, repo_url)
-        return repo
 
 
 def pull_repo(origin_repo, repo_branch, git_ssh_command_path=None):
