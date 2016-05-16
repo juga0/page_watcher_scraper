@@ -67,6 +67,8 @@ def main():
     #                            GIT_SSH_COMMAND_PATH, DATA_REPO_BRANCH,
     #                            METADATA_PATH)
 
+    logger.debug('CHECKING SSH KEYS')
+    logger.debug('===================')
     for repo in repos:
         check_ssh_keys(repo, GIT_SSH_COMMAND_PATH, SSH_PRIV_KEY_PATH,
                    SSH_PUB_KEY_PATH, SSH_PUB_KEY_SERVER_PATH)
