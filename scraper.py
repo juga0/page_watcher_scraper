@@ -31,7 +31,7 @@ def main():
                              CONFIG_REPO_BRANCH, CONFIG_PATH)
 
     rules = obtain_yaml(RULES_REPO_PATH, RULES_REPO_URL,
-                        RULES_REPO_BRANCH, RULES_PATH)
+                        RULES_REPO_BRANCH)
 
     write_ssh_keys(SSH_DIR, MORPH_SSH_PRIV_KEY_ENV, MORPH_SSH_PUB_KEY_ENV,
                    SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH)

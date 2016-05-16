@@ -2,8 +2,8 @@
 
 from git import Repo, InvalidGitRepositoryError, GitCmdObjectDB, \
     GitCommandError, Git
-from os import environ, makedirs, chmod
-from os.path import join, isdir, isfile, abspath, dirname
+from os import environ, makedirs, chmod, listdir, sep
+from os.path import join, isdir, isfile, abspath, dirname, splitext
 import sys
 from shutil import rmtree
 import yaml
@@ -40,7 +40,6 @@ def pull_or_clone(repo_path, repo_url, repo_branch,
         try:
             repo = Repo(repo_path, odbt=GitCmdObjectDB)
             logger.debug('dir is a repo')
-            logger.debug('repo_name %s' % repo_name)
             origin = repo.remotes[repo_name]
         # dir exist but is not a repo
         except InvalidGitRepositoryError, e:
@@ -75,14 +74,62 @@ def pull_or_clone(repo_path, repo_url, repo_branch,
         return repo
 
 
-def obtain_yaml(repo_path, repo_url, repo_branch, file_path,
+def filelist(dir_path):
+    files = []
+    for f in listdir(dir_path):
+        fulldir = join(dir_path, f)
+        if isdir(fulldir):
+            flist = [join(fulldir, x) for x in listdir(fulldir) \
+                     if isfile(join(fulldir, x)) and x.endswith('.yml')]
+            files.extend(flist)
+            files.extend(filelist(fulldir))
+    return files
+
+
+def merge_two_dicts(x, y):
+    '''Given two dicts, merge them into a new dict as a shallow copy.'''
+    z = x.copy()
+    z.update(y)
+    return z
+
+
+def obtain_policy_type_from_filename(file_path):
+    policy_type = None
+    logger.debug('file_path %s' % file_path)
+    if file_path.endswith('.yml'):
+        policy_type = splitext(file_path.lower())[0]
+    logger.debug('policy_type %s' % policy_type)
+    return policy_type
+
+
+def obtain_yaml_from_path(repo_path):
+    yaml_list = []
+    files_path = filelist(repo_path)
+    for file_path in files_path:
+        path_list = file_path.split(sep)
+        path_dict = {
+            'policy': obtain_policy_type_from_filename(path_list[-1]),
+            'tool': path_list[-2],
+            'organization': path_list[-3]
+        }
+        yaml_data = read_yaml(file_path)
+        yaml_dict = merge_two_dicts(yaml_data, path_dict)
+        yaml_list.append(yaml_dict)
+    logger.debug(yaml_list)
+    return yaml_list
+
+
+def obtain_yaml(repo_path, repo_url, repo_branch, file_path=None,
                 repo_name='origin', git_ssh_command_path=None,
                 exit_on_error=True):
     logger.debug('repo_name %s' % repo_name)
     pull_or_clone(repo_path, repo_url, repo_branch,
                   repo_name, git_ssh_command_path,
                   exit_on_error)
-    yaml_data = read_yaml(file_path)
+    if file_path:
+        yaml_data = read_yaml(file_path)
+        return yaml_data
+    yaml_data = obtain_yaml_from_path(repo_path)
     return yaml_data
 
 

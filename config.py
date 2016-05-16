@@ -30,6 +30,7 @@ RULES_REPO_URL = \
 
 METADATA_PATH = join(DATA_REPO_PATH, 'metadata.yml')
 
+POLICY_TYPES = set(['privacy_policy', 'tos'])
 
 MORPH_SSH_PRIV_KEY_ENV = 'MORPH_SSH_PRIV_KEY'
 MORPH_SSH_PUB_KEY_ENV = 'MORPH_SSH_PUB_KEY'
