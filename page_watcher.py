@@ -395,12 +395,12 @@ def generate_metadata(repo_path):
         host = 'morph.io'
     elif hasproxy():
         ip = obtain_public_ip()
-        uname = generate_hash(obtain_uname)
+        uname = generate_hash(obtain_uname())
         commit_revision = obtain_script_commit_hash(repo_path)
         host = 'local'
     else:
         ip = generate_hash(obtain_public_ip())
-        uname = generate_hash(obtain_uname)
+        uname = generate_hash(obtain_uname())
         commit_revision = obtain_script_commit_hash(repo_path)
         host = 'dev server'
     metadata = {
