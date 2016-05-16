@@ -51,7 +51,7 @@ SSH_PUB_KEY_SERVER_PATH = join(SSH_PATH, 'ssh_pub_key_server')
 
 GIT_SSH_COMMAND = '#!/bin/sh\nssh -i ' + SSH_PRIV_KEY_PATH + \
     ' -o "UserKnownHostsFile ' + SSH_PUB_KEY_SERVER_PATH + \
-    ' "$@"\n'
+    '" "$@"\n'
 
 # FIXME: need to add for morph.io?
 #    '" -o "StrictHostKeyChecking no"' + \
