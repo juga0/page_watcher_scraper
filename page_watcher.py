@@ -113,8 +113,9 @@ def obtain_yaml_from_path(repo_path):
             'organization': path_list[-3]
         }
         yaml_data = read_yaml(file_path)
-        yaml_dict = merge_two_dicts(yaml_data, path_dict)
-        yaml_list.append(yaml_dict)
+        if yaml_data:
+            yaml_dict = merge_two_dicts(yaml_data, path_dict)
+            yaml_list.append(yaml_dict)
     logger.debug(yaml_list)
     return yaml_list
 
