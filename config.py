@@ -50,7 +50,9 @@ qnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
 SSH_PUB_KEY_SERVER_PATH = join(SSH_PATH, 'ssh_pub_key_server')
 
 GIT_SSH_COMMAND = '#!/bin/sh\nssh -i ' + SSH_PRIV_KEY_PATH + \
-    ' -o "UserKnownHostsFile ' + SSH_PUB_KEY_SERVER_PATH + '" "$@"\n'
+    ' -o "UserKnownHostsFile ' + SSH_PUB_KEY_SERVER_PATH + \
+    ' -o "StrictHostKeyChecking no"' + \
+    '" "$@"\n'
 
 try:
     from config_local import *
