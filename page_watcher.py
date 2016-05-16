@@ -60,18 +60,18 @@ def pull_or_clone(repo_path, repo_url, repo_branch,
             pull_repo(origin, repo_branch, git_ssh_command_path)
             # FIXME: pull fail?
         return repo
-        try:
-            repo, origin = clone_repo(repo_url, repo_path, repo_branch,
-                                      repo_name, git_ssh_command_path)
-        except GitCommandError, e:
-        # FIXME: handle better exception
-            logger.exception(e)
-            logger.debug('cant obtain repo')
-            if exit_on_error:
-                sys.exit()
-            else:
-                repo, origin = create_repo(repo_path, repo_name, repo_url)
-        return repo
+    try:
+        repo, origin = clone_repo(repo_url, repo_path, repo_branch,
+                                  repo_name, git_ssh_command_path)
+    except GitCommandError, e:
+    # FIXME: handle better exception
+        logger.exception(e)
+        logger.debug('cant obtain repo')
+        if exit_on_error:
+            sys.exit()
+        else:
+            repo, origin = create_repo(repo_path, repo_name, repo_url)
+    return repo
 
 
 def filelist(dir_path):
