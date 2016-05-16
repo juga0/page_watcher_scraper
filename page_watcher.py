@@ -315,10 +315,44 @@ def obtain_uname():
 #     getpass.getuser()
 
 
+def obtain_home():
+    from os.path import expanduser
+    home = expanduser('~')
+    logger.debug('home %s' % home)
+    return home
+
+
+def obtain_environ():
+    from os import environ
+    logger.debug('environ %s' % environ)
+    return environ
+
+
+def ls(dir_path):
+    from os import listdir
+    ls = listdir(dir_path)
+    logger.debug('ls %s' % ls)
+    return ls
+
+
 def generate_host_identifier():
     hostid = generate_hash(obtain_uname())
     logger.debug(hostid)
     return hostid
+
+
+def obtain_ip():
+    import socket
+    ip = socket.gethostbyname(socket.gethostname())
+    logger.debug('ip %s' % ip)
+    return ip
+
+
+def obtain_public_ip():
+    from urllib2 import urlopen
+    my_ip = urlopen('http://ip.42.pl/raw').read()
+    logger.debug('public ip %s' % my_ip)
+    return str(my_ip)
 
 
 def now():
@@ -328,11 +362,53 @@ def now():
     return now
 
 
+def ismorpio():
+    if environ['HOME'] == '/app':
+        logger.debug('running in morph.io')
+        return True
+    else:
+        logger.debug('not running in morph.io')
+        return False
+
+
+def hasproxy():
+    # FIXME: http proxy might not change the public address,
+    # assuming it does for now
+    if environ.get('HTTP_PROXY'):
+        logger.debug('there is an HTTP_PROXY')
+        return True
+    else:
+        logger.debug('there is not an HTTP_PROXY')
+        return False
+
+
 def generate_metadata(repo_path):
+    # ADVICE: system information is sensitive
+    # in morph.io or running with tor, the ip will change all the time
+    # FIXME: in morph.io cant obtain the current git revision this way
+    # in morph.io host name will change all the time
+    # an env variable that doesnt change is HOME=/app
+    if ismorpio():
+        ip = obtain_public_ip()
+        uname = obtain_uname()
+        commit_revision = None
+        host = 'morph.io'
+    elif hasproxy():
+        ip = obtain_public_ip()
+        uname = generate_hash(obtain_uname)
+        commit_revision = obtain_script_commit_hash(repo_path)
+        host = 'local'
+    else:
+        ip = generate_hash(obtain_public_ip())
+        uname = generate_hash(obtain_uname)
+        commit_revision = obtain_script_commit_hash(repo_path)
+        host = 'dev server'
     metadata = {
         'timestamp': str(now()),
-        'commit_revision': obtain_script_commit_hash(repo_path),
-        'host_id': generate_host_identifier(),
+        'ip': ip,
+        'uname': uname,
+        'commit_revision': commit_revision,
+        'host': host
     }
     logger.debug(metadata)
     return metadata
