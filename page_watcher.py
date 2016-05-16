@@ -200,7 +200,8 @@ def commit_push(repo, repo_author, repo_email, git_ssh_command_path,
         # more debugging for morph.io
         with open(git_ssh_command_path) as f:
             logger.debug('ssh command content %s' % f.read())
-        with repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
+        with origin.repo.git.custom_environment(GIT_SSH=git_ssh_command_path):
+            environ['GIT_SSH'] = git_ssh_command_path
             logger.debug('GIT_SSH %s' % environ.get('GIT_SSH'))
             logger.debug('GIT_SSH_COMMAND' % environ.get('GIT_SSH_COMMAND'))
             try:
