@@ -38,8 +38,9 @@ def main():
                    SSH_PRIV_KEY_PATH, SSH_PUB_KEY_PATH)
 
     if ismorpio():
-        GIT_SSH_COMMAND = GIT_SSH_COMMAND_MORPHIO
-    write_ssh_command(GIT_SSH_COMMAND_PATH, GIT_SSH_COMMAND)
+        write_ssh_command(GIT_SSH_COMMAND_PATH, GIT_SSH_COMMAND_MORPHIO)
+    else:
+        write_ssh_command(GIT_SSH_COMMAND_PATH, GIT_SSH_COMMAND)
 
     write_ssh_key_server(GITHUB_SSH_PUB_KEY, SSH_PUB_KEY_SERVER_PATH)
 
