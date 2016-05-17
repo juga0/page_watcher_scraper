@@ -4,7 +4,7 @@
 import sys
 from page_watcher import commit_push_if_changes, create_data_file_path, \
     obtain_yaml, pull_or_clone, write_ssh_keys, write_ssh_command, \
-    write_ssh_key_server, check_ssh_keys
+    write_ssh_key_server, check_ssh_keys, ismorpio
 from config import CONFIG_PATH, RULES_PATH, DATA_REPO_PATH, CONFIG_REPO_PATH, \
     CONFIG_REPO_URL, CONFIG_REPO_BRANCH, RULES_REPO_PATH, RULES_REPO_URL, \
     RULES_REPO_BRANCH, DATA_REPO_BRANCH, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL, \
